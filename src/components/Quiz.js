@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import { getFlags } from '@/utils/flagsApi';
 import StartScreen from './StartScreen';
 import FlagDisplay from './FlagDisplay';
 import OptionsList from './OptionList';
 import LeftArrow from '../../public/left-arrow.png'
 import Image from 'next/image';
+import Library from './Library';
 
 export const Quiz = () => {
     const [flags, setFlags] = useState([]);
@@ -16,7 +17,9 @@ export const Quiz = () => {
     const [gameStarted, setGameStarted] = useState(false);
     const [timeRemaining, setTimeRemaining] = useState(10);
     const [timerRunning, setTimerRunning] = useState(true);
-    const [leftFlags, setLeftFlags] = useState(1)
+    const [leftFlags, setLeftFlags] = useState(1);
+    const [showLibrary, setShowlibrary] = useState(false);
+
     const calculateProgressBarColor = (percentage) => {
         if (percentage >= 60) {
             return 'bg-green-500';
@@ -29,17 +32,14 @@ export const Quiz = () => {
 
     const progressBarWidth = (timeRemaining / 10) * 100;
     const progressBarColor = calculateProgressBarColor(progressBarWidth);
+
     useEffect(() => {
-        const getFlags = async () => {
-            const res = await axios.get('https://flagcdn.com/es/codes.json');
-            const flagsData = Object.keys(res.data).map((code) => ({
-                code,
-                name: res.data[code],
-            }));
-            setFlags(flagsData);
-            setOptions(getRandomOptions(flagsData));
+        const getData = async () => {
+            const res = await getFlags();
+            setFlags(res);
+            setOptions(getRandomOptions(res));
         };
-        getFlags();
+        getData();
     }, []);
 
     useEffect(() => {
@@ -50,7 +50,7 @@ export const Quiz = () => {
             }, 1000);
         }
         return () => clearInterval(timer);
-    }, [gameStarted, gameOver, timerRunning]);
+    }, [timerRunning]);
 
     useEffect(() => {
         if (timeRemaining === 0 && !selectedOption) {
@@ -78,7 +78,7 @@ export const Quiz = () => {
         if (!selectedOption) {
             setSelectedOption(option);
             setTimerRunning(false);
-            if (option === currentFlag.name) {
+            if (option === currentFlag.name.common) {
                 setScore(score + 1);
             }
         }
@@ -103,18 +103,20 @@ export const Quiz = () => {
         setSelectedOption(null)
         setTimerRunning(true)
         setScore(0);
+        setLeftFlags(1);
     };
+
+    const showLibraryComponent = () => {
+        setShowlibrary(true);
+    }
+
+    const showOptions = () => {
+        setShowMenuOptions(true);
+    }
 
     return (
         <div className='h-screen grid items-center justify-center fondo'>
-            {!gameStarted ? (
-                <StartScreen handleStartGame={handleStartGame} />
-            ) : gameOver ? (
-                <div className='text-center'>
-                    <h1 className='text-4xl font-bold mb-4'>¡Game Over!</h1>
-                    <p className='text-xl'>Your final score is: {score}</p>
-                </div>
-            ) : (
+            {gameStarted ? (
                 <div className='rounded-lg px-9 py-4 bg-sky-400 shadow-lg'>
                     <div className='grid grid-cols-3 items-center text-center font-bold'>
                         <Image
@@ -155,13 +157,22 @@ export const Quiz = () => {
                         {selectedOption && (
                             <button
                                 onClick={handleNextFlag}
-                                className='rounded-lg shadow-md w-[320px] font-bold py-2 px-5 bg-yellow-500 hover:bg-yellow-600 transition duration-300'
+                                className='rounded-lg shadow-md w-[50%] font-bold py-2 px-5 bg-yellow-500 hover:bg-yellow-600 transition duration-300'
                             >
                                 Continue
                             </button>
                         )}
                     </div>
                 </div>
+            ) : showLibrary ? (
+                <Library flags={flags} onClick={() => setShowlibrary(false)} />
+            ) : gameOver ? (
+                <div className='text-center'>
+                    <h1 className='text-4xl font-bold mb-4'>¡Game Over!</h1>
+                    <p className='text-xl'>Your final score is: {score}</p>
+                </div>
+            ) : (
+                <StartScreen handleStartGame={handleStartGame} showLibraryComponent={showLibraryComponent} showMenuOptions={showOptions} />
             )}
         </div>
     );
