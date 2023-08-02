@@ -1,14 +1,13 @@
-import React from 'react'
-import LeftArrow from '../../public/left-arrow.png'
+import React from 'react';
+import LeftArrow from '../../public/left-arrow.png';
 import Image from 'next/image';
 
 const MenuOptions = ({ selectedContinents, setSelectedContinents, onClick }) => {
     const continents = ['Africa', 'Americas', 'Asia', 'Europe', 'Oceania'];
+
     const handleContinentClick = (continent) => {
         if (selectedContinents.includes(continent)) {
-            setSelectedContinents((prev) =>
-                prev.filter((c) => c !== continent)
-            );
+            setSelectedContinents((prev) => prev.filter((c) => c !== continent));
         } else {
             setSelectedContinents((prev) => [...prev, continent]);
         }
@@ -28,9 +27,7 @@ const MenuOptions = ({ selectedContinents, setSelectedContinents, onClick }) => 
                 <button
                     key={continent}
                     onClick={() => handleContinentClick(continent)}
-                    className={`${selectedContinents.includes(continent)
-                            ? 'bg-blue-500 text-white'
-                            : 'bg-gray-200 text-black'
+                    className={`${selectedContinents.includes(continent) ? 'bg-blue-500 text-white' : 'bg-gray-200 text-black'
                         }`}
                 >
                     {continent}

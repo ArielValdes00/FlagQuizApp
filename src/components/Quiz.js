@@ -6,6 +6,7 @@ import OptionsList from './OptionList';
 import LeftArrow from '../../public/left-arrow.png'
 import Image from 'next/image';
 import Library from './Library';
+import MenuOptions from './MenuOptions';
 
 export const Quiz = () => {
     const [flags, setFlags] = useState([]);
@@ -19,6 +20,10 @@ export const Quiz = () => {
     const [timerRunning, setTimerRunning] = useState(true);
     const [leftFlags, setLeftFlags] = useState(1);
     const [showLibrary, setShowlibrary] = useState(false);
+    const [selectedContinents, setSelectedContinents] = useState([]);
+    const [showMenuOptions, setShowMenuOptions] = useState(false);
+    const [shownFlags, setShownFlags] = useState([]);
+    const [filteredFlags, setFilteredFlags] = useState([]); 
 
     const calculateProgressBarColor = (percentage) => {
         if (percentage >= 60) {
@@ -37,7 +42,6 @@ export const Quiz = () => {
         const getData = async () => {
             const res = await getFlags();
             setFlags(res);
-            setOptions(getRandomOptions(res));
         };
         getData();
     }, []);
@@ -49,8 +53,10 @@ export const Quiz = () => {
                 setTimeRemaining((prevTime) => prevTime - 1);
             }, 1000);
         }
+    
         return () => clearInterval(timer);
-    }, [timerRunning]);
+    }, [gameStarted, gameOver, timerRunning]);
+    
 
     useEffect(() => {
         if (timeRemaining === 0 && !selectedOption) {
@@ -60,19 +66,34 @@ export const Quiz = () => {
     }, [timeRemaining]);
 
     const getRandomOptions = (flagsData) => {
+        const availableFlags = flagsData.filter((flag) => !shownFlags.includes(flag.name.common));
+    
+        if (availableFlags.length < 4) {
+            setShownFlags([]);
+        }
+    
         const randomIndexes = [];
-        while (randomIndexes.length < 4) {
-            const randomIndex = Math.floor(Math.random() * flagsData.length);
+        while (randomIndexes.length < 3) { 
+            const randomIndex = Math.floor(Math.random() * availableFlags.length);
             if (!randomIndexes.includes(randomIndex)) {
                 randomIndexes.push(randomIndex);
             }
         }
-        const options = randomIndexes.map((index) => flagsData[index].name);
-        const randomAnswerIndex = Math.floor(Math.random() * options.length);
-        setCurrentFlag(flagsData[randomIndexes[randomAnswerIndex]]);
+    
+        let correctFlagIndex;
+        do {
+            correctFlagIndex = Math.floor(Math.random() * availableFlags.length);
+        } while (randomIndexes.includes(correctFlagIndex));
+    
+        const correctFlagPosition = Math.floor(Math.random() * 4); 
+        randomIndexes.splice(correctFlagPosition, 0, correctFlagIndex);
+    
+        const options = randomIndexes.map((index) => availableFlags[index].name);
+        setCurrentFlag(availableFlags[correctFlagIndex]);
+        setShownFlags((prevShownFlags) => [...prevShownFlags, availableFlags[correctFlagIndex]?.name.common]);
         return options;
     };
-
+    
     const handleOptionClick = (option) => {
         setLeftFlags(leftFlags + 1);
         if (!selectedOption) {
@@ -87,11 +108,12 @@ export const Quiz = () => {
     const handleNextFlag = () => {
         setSelectedOption(null);
         setTimerRunning(true);
-        if (options.length === 0) {
+        const availableFlags = filteredFlags.filter((flag) => !shownFlags.includes(flag.name.common));
+        if (availableFlags.length === 0) {
             setGameOver(true);
         } else {
-            setCurrentFlag(getRandomOptions(flags));
-            setOptions(getRandomOptions(flags));
+            const newOptions = getRandomOptions(availableFlags);
+            setOptions(newOptions);
             setTimeRemaining(10);
         }
     };
@@ -99,9 +121,15 @@ export const Quiz = () => {
     const handleStartGame = () => {
         setGameStarted(true);
         setTimeRemaining(10);
-        setOptions(getRandomOptions(flags));
-        setSelectedOption(null)
-        setTimerRunning(true)
+        if (selectedContinents.length > 0) {
+            const filteredFlags = flags.filter(flag => selectedContinents.includes(flag.region))
+            setFilteredFlags(filteredFlags)
+            setOptions(getRandomOptions(filteredFlags));
+        } else {
+            setOptions(getRandomOptions(flags));
+        }
+        setSelectedOption(null);
+        setTimerRunning(true);
         setScore(0);
         setLeftFlags(1);
     };
@@ -128,7 +156,7 @@ export const Quiz = () => {
                             className='cursor-pointer'
                         />
                         <p>Score: {score}</p>
-                        <p className='ml-auto'>{leftFlags}/{flags.length}</p>
+                        <p className='ml-auto'>{leftFlags}/{filteredFlags.length || flags.length}</p>
                     </div>
                     <div className='border-2 border-gray-100 bg-gray-100 rounded-full my-4 relative'>
                         <div
@@ -166,13 +194,22 @@ export const Quiz = () => {
                 </div>
             ) : showLibrary ? (
                 <Library flags={flags} onClick={() => setShowlibrary(false)} />
+            ) : showMenuOptions ? (
+                <MenuOptions
+                    selectedContinents={selectedContinents}
+                    setSelectedContinents={setSelectedContinents}
+                    onClick={() => setShowMenuOptions(false)}
+                />
             ) : gameOver ? (
                 <div className='text-center'>
                     <h1 className='text-4xl font-bold mb-4'>¡Game Over!</h1>
                     <p className='text-xl'>Your final score is: {score}</p>
                 </div>
             ) : (
-                <StartScreen handleStartGame={handleStartGame} showLibraryComponent={showLibraryComponent} showMenuOptions={showOptions} />
+                <StartScreen
+                    handleStartGame={handleStartGame}
+                    showLibraryComponent={showLibraryComponent}
+                    showMenuOptions={showOptions} />
             )}
         </div>
     );
