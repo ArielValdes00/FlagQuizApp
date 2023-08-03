@@ -2,8 +2,11 @@ import React from 'react';
 
 const StartScreen = ({ handleStartGame, showLibraryComponent, showMenuOptions }) => {
     return (
-        <div className='flex flex-col gap-3 text-center bg-sky-400 max-w-xs md:max-w-sm p-4 rounded-lg'>
-            <h1 className='text-4xl font-bold mb-12 px-4'>Welcome to the Flag Quiz!</h1>
+        <section className='flex flex-col gap-4 text-center bg-sky-400 max-w-xs md:max-w-sm p-5 rounded-lg'>
+            <h1 className='text-4xl font-bold px-4 mb-2'>Welcome to the Flag Quiz!</h1>
+            <div className='border-2 rounded-lg bg-red-500 py-2 mt-1'>
+                <p className='font-semibold px-3'>Guess the flags of 245 countries: from Afghanistan to Zimbabwe</p>
+            </div>
             <button
                 onClick={handleStartGame}
                 className='rounded-lg shadow-md py-2 px-5 bg-yellow-400 hover:bg-yellow-500 font-semibold transition duration-300'
@@ -22,7 +25,7 @@ const StartScreen = ({ handleStartGame, showLibraryComponent, showMenuOptions })
             >
                 Library
             </button>
-        </div>
+        </section>
     );
 };
 

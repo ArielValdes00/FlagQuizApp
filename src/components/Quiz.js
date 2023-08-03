@@ -20,10 +20,12 @@ export const Quiz = () => {
     const [timerRunning, setTimerRunning] = useState(true);
     const [leftFlags, setLeftFlags] = useState(1);
     const [showLibrary, setShowlibrary] = useState(false);
-    const [selectedContinents, setSelectedContinents] = useState([]);
+    const continents = ['Africa', 'Americas', 'Asia', 'Europe', 'Oceania'];
+    const [selectedContinents, setSelectedContinents] = useState(continents);
     const [showMenuOptions, setShowMenuOptions] = useState(false);
     const [shownFlags, setShownFlags] = useState([]);
     const [filteredFlags, setFilteredFlags] = useState([]); 
+    const [textError, setTextError] = useState(false);
 
     const calculateProgressBarColor = (percentage) => {
         if (percentage >= 60) {
@@ -125,9 +127,7 @@ export const Quiz = () => {
             const filteredFlags = flags.filter(flag => selectedContinents.includes(flag.region))
             setFilteredFlags(filteredFlags)
             setOptions(getRandomOptions(filteredFlags));
-        } else {
-            setOptions(getRandomOptions(flags));
-        }
+        } 
         setSelectedOption(null);
         setTimerRunning(true);
         setScore(0);
@@ -170,7 +170,7 @@ export const Quiz = () => {
                             </p>
                         )}
                     </div>
-                    <div className='flex flex-col gap-4 items-center'>
+                    <section className='flex flex-col gap-4 items-center'>
                         <FlagDisplay
                             currentFlag={currentFlag}
                         />
@@ -180,7 +180,7 @@ export const Quiz = () => {
                             handleOptionClick={handleOptionClick}
                             currentFlag={currentFlag}
                         />
-                    </div>
+                    </section>
                     <div className='flex justify-center mt-4'>
                         {selectedOption && (
                             <button
@@ -199,6 +199,9 @@ export const Quiz = () => {
                     selectedContinents={selectedContinents}
                     setSelectedContinents={setSelectedContinents}
                     onClick={() => setShowMenuOptions(false)}
+                    continents={continents}
+                    setTextError={setTextError}
+                    textError={textError}
                 />
             ) : gameOver ? (
                 <div className='text-center'>
