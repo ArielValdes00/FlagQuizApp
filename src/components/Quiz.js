@@ -117,16 +117,17 @@ export const Quiz = () => {
         if (availableFlags.length === 0) {
             setGameOver(true);
             setGameStarted(false);
+            setShownFlags([]);
         } else {
             const newOptions = getRandomOptions(availableFlags);
             setOptions(newOptions);
             setTimeRemaining(10);
         }
     };
-
     const handleStartGame = () => {
         setGameStarted(true);
         setTimeRemaining(10);
+        setShownFlags([]);
         if (selectedContinents.length > 0) {
             const filteredFlags = flags.filter(flag => selectedContinents.includes(flag.region))
             setFilteredFlags(filteredFlags);
@@ -153,6 +154,13 @@ export const Quiz = () => {
         setShowMenuOptions(true);
     }
 
+    const leaveToStartScreen = () => {
+        setGameStarted(false);
+        setGameOver(false);
+        setCurrentFlag(null);
+        setShowMenuOptions(false);
+        setShowlibrary(false);
+    }
     return (
         <div className='h-screen grid items-center justify-center background'>
             {gameStarted ? (
@@ -204,12 +212,12 @@ export const Quiz = () => {
                     </div>
                 </div>
             ) : showLibrary ? (
-                <Library flags={flags} onClick={() => setShowlibrary(false)} />
+                <Library flags={flags} onClick={leaveToStartScreen} />
             ) : showMenuOptions ? (
                 <MenuOptions
                     selectedContinents={selectedContinents}
                     setSelectedContinents={setSelectedContinents}
-                    onClick={() => setShowMenuOptions(false)}
+                    onClick={leaveToStartScreen}
                     continents={continents}
                     setTextError={setTextError}
                     textError={textError}
@@ -219,7 +227,7 @@ export const Quiz = () => {
                     score={score}
                     filteredFlags={filteredFlags}
                     playAgain={handleStartGame}
-                    leave={() => setGameOver(false)}
+                    leave={leaveToStartScreen}
                 />
             ) : (
                 <StartScreen

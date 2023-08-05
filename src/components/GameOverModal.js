@@ -7,9 +7,9 @@ const GameOverModal = ({ score, filteredFlags, playAgain, leave }) => {
             <div className='font-semibold text-xl'>
                 <p>Score:</p>
                 <p className='flex justify-center items-center gap-4 mt-4'>
-                    <span className='w-10 h-10 flex items-center justify-center rounded-full bg-green-600 p-3'>{score}</span>
+                    <span className='w-12 h-12 flex items-center justify-center rounded-full bg-green-600'>{score}</span>
                     to
-                    <span className='w-10 h-10 flex items-center justify-center rounded-full bg-yellow-400 p-3'>{filteredFlags?.length + 1}</span>
+                    <span className='w-12 h-12 flex items-center justify-center rounded-full bg-yellow-400'>{filteredFlags?.length + 1}</span>
                 </p>
             </div>
             <div className='mt-4'>
