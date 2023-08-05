@@ -21,7 +21,6 @@ const MenuOptions = ({ selectedContinents, setSelectedContinents, onClick, conti
             setSelectedContinents((prev) => [...prev, continent]);
         }
     };
-    console.log(selectedContinents)
 
     return (
         <section className='h-screen grid items-center justify-center'>
