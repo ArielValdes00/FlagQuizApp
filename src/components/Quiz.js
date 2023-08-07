@@ -8,25 +8,26 @@ import Image from 'next/image';
 import Library from './Library';
 import MenuOptions from './MenuOptions';
 import GameOverModal from './GameOverModal';
+import useBooleanState from '@/hooks/useBooleanState';
 
 export const Quiz = () => {
     const [flags, setFlags] = useState([]);
     const [options, setOptions] = useState([]);
     const [currentFlag, setCurrentFlag] = useState(null);
     const [score, setScore] = useState(0);
-    const [gameOver, setGameOver] = useState(false);
     const [selectedOption, setSelectedOption] = useState(null);
-    const [gameStarted, setGameStarted] = useState(false);
     const [timeRemaining, setTimeRemaining] = useState(10);
     const [timerRunning, setTimerRunning] = useState(true);
     const [leftFlags, setLeftFlags] = useState(1);
-    const [showLibrary, setShowlibrary] = useState(false);
     const continents = ['Africa', 'Americas', 'Asia', 'Europe', 'Oceania'];
     const [selectedContinents, setSelectedContinents] = useState(continents);
-    const [showMenuOptions, setShowMenuOptions] = useState(false);
     const [shownFlags, setShownFlags] = useState([]);
     const [filteredFlags, setFilteredFlags] = useState([]);
     const [textError, setTextError] = useState(false);
+    const [gameStarted, toggleGameStarted] = useBooleanState(false);
+    const [gameOver, toggleGameOver] = useBooleanState(false);
+    const [showLibrary, toggleShowLibrary] = useBooleanState(false);
+    const [showMenuOptions, toggleShowMenuOptions] = useBooleanState(false);
 
     const calculateProgressBarColor = (percentage) => {
         if (percentage >= 60) {
@@ -115,8 +116,8 @@ export const Quiz = () => {
         setTimerRunning(true);
         const availableFlags = filteredFlags.filter((flag) => !shownFlags.includes(flag.name.common));
         if (availableFlags.length === 0) {
-            setGameOver(true);
-            setGameStarted(false);
+            toggleGameOver();
+            toggleGameStarted();
             setShownFlags([]);
         } else {
             const newOptions = getRandomOptions(availableFlags);
@@ -124,8 +125,12 @@ export const Quiz = () => {
             setTimeRemaining(10);
         }
     };
+
     const handleStartGame = () => {
-        setGameStarted(true);
+        if (gameOver) {
+            toggleGameOver();
+        }
+        toggleGameStarted();
         setTimeRemaining(10);
         setShownFlags([]);
         if (selectedContinents.length > 0) {
@@ -145,22 +150,11 @@ export const Quiz = () => {
         }
     }, [filteredFlags]);
 
-
-    const showLibraryComponent = () => {
-        setShowlibrary(true);
-    }
-
-    const showOptions = () => {
-        setShowMenuOptions(true);
-    }
-
     const leaveToStartScreen = () => {
-        setGameStarted(false);
-        setGameOver(false);
+        toggleGameOver();
         setCurrentFlag(null);
-        setShowMenuOptions(false);
-        setShowlibrary(false);
     }
+
     return (
         <div className='h-screen grid items-center justify-center background'>
             {gameStarted ? (
@@ -171,7 +165,7 @@ export const Quiz = () => {
                             height={20}
                             width={20}
                             alt='Return'
-                            onClick={() => setGameStarted(false)}
+                            onClick={() => toggleGameStarted()}
                             className='cursor-pointer'
                         />
                         <p>Score: {score}</p>
@@ -212,12 +206,12 @@ export const Quiz = () => {
                     </div>
                 </div>
             ) : showLibrary ? (
-                <Library flags={flags} onClick={leaveToStartScreen} />
+                <Library flags={flags} onClick={() => toggleShowLibrary()} />
             ) : showMenuOptions ? (
                 <MenuOptions
                     selectedContinents={selectedContinents}
                     setSelectedContinents={setSelectedContinents}
-                    onClick={leaveToStartScreen}
+                    onClick={() => toggleShowMenuOptions()}
                     continents={continents}
                     setTextError={setTextError}
                     textError={textError}
@@ -232,8 +226,8 @@ export const Quiz = () => {
             ) : (
                 <StartScreen
                     handleStartGame={handleStartGame}
-                    showLibraryComponent={showLibraryComponent}
-                    showMenuOptions={showOptions} />
+                    showLibraryComponent={() => toggleShowLibrary()}
+                    showMenuOptions={() => toggleShowMenuOptions()} />
             )}
         </div>
     );
