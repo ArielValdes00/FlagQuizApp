@@ -2,7 +2,7 @@ import Image from 'next/image'
 import React from 'react'
 import LeftArrow from '../../public/left-arrow.png'
 
-const Library = ({ flags, onClick }) => {
+const Library = ({ flags, handleSectionChange }) => {
 
     const sortedFlags = [...flags].sort((a, b) => a.name.common.localeCompare(b.name.common));
 
@@ -15,7 +15,7 @@ const Library = ({ flags, onClick }) => {
                         height={25}
                         width={25}
                         alt='Return'
-                        onClick={onClick}
+                        onClick={() => handleSectionChange('start')}
                         loading="eager"
                         className='cursor-pointer'
                     />

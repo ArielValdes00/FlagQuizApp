@@ -2,7 +2,7 @@ import React, {useEffect}  from 'react';
 import LeftArrow from '../../public/left-arrow.png';
 import Image from 'next/image';
 
-const MenuOptions = ({ selectedContinents, setSelectedContinents, onClick, continents, setTextError, textError }) => {
+const MenuOptions = ({ selectedContinents, setSelectedContinents, continents, setTextError, textError, handleSectionChange }) => {
 
     const textErrorMessage = "Change your choice...";
 
@@ -25,13 +25,13 @@ const MenuOptions = ({ selectedContinents, setSelectedContinents, onClick, conti
     return (
         <section className='h-screen grid items-center justify-center'>
             <div className='bg-sky-400 shadow-lg px-5 py-5 rounded-lg shadow-md w-[380px]'>
-                <div className='flex justify-between items-center mb-5'>
+                <div className='flex justify-between items-center mb-5' >
                     <Image
                         src={LeftArrow}
                         height={25}
                         width={25}
                         alt='Return'
-                        onClick={!textError ? onClick : null}
+                        onClick={!textError ? () => handleSectionChange('start') : null}
                         loading="eager"
                         className={`${textError && "opacity-[.3]"} cursor-pointer`}
                     />

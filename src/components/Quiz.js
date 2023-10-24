@@ -1,33 +1,32 @@
 import { useState, useEffect } from 'react';
-import { getFlags } from '@/utils/flagsApi';
-import StartScreen from './StartScreen';
 import FlagDisplay from './FlagDisplay';
 import OptionsList from './OptionList';
 import LeftArrow from '../../public/left-arrow.png'
 import Image from 'next/image';
-import Library from './Library';
-import MenuOptions from './MenuOptions';
-import GameOverModal from './GameOverModal';
 import useBooleanState from '@/hooks/useBooleanState';
 
-export const Quiz = () => {
-    const [flags, setFlags] = useState([]);
+export const Quiz = ({
+    flags,
+    shownFlags,
+    setShownFlags,
+    filteredFlags,
+    timeRemaining,
+    setTimeRemaining,
+    timerRunning,
+    setTimerRunning,
+    selectedOption,
+    setSelectedOption,
+    leftFlags,
+    setLeftFlags,
+    setSelectedSection,
+    score, setScore,
+    currentFlag,
+    setCurrentFlag,
+    gameStarted,
+    toggleGameStarted,
+    gameOver }) => {
+
     const [options, setOptions] = useState([]);
-    const [currentFlag, setCurrentFlag] = useState(null);
-    const [score, setScore] = useState(0);
-    const [selectedOption, setSelectedOption] = useState(null);
-    const [timeRemaining, setTimeRemaining] = useState(10);
-    const [timerRunning, setTimerRunning] = useState(true);
-    const [leftFlags, setLeftFlags] = useState(1);
-    const continents = ['Africa', 'Americas', 'Asia', 'Europe', 'Oceania'];
-    const [selectedContinents, setSelectedContinents] = useState(continents);
-    const [shownFlags, setShownFlags] = useState([]);
-    const [filteredFlags, setFilteredFlags] = useState([]);
-    const [textError, setTextError] = useState(false);
-    const [gameStarted, toggleGameStarted] = useBooleanState(false);
-    const [gameOver, toggleGameOver] = useBooleanState(false);
-    const [showLibrary, toggleShowLibrary] = useBooleanState(false);
-    const [showMenuOptions, toggleShowMenuOptions] = useBooleanState(false);
 
     const calculateProgressBarColor = (percentage) => {
         if (percentage >= 60) {
@@ -41,14 +40,6 @@ export const Quiz = () => {
 
     const progressBarWidth = (timeRemaining / 10) * 100;
     const progressBarColor = calculateProgressBarColor(progressBarWidth);
-
-    useEffect(() => {
-        const getData = async () => {
-            const res = await getFlags();
-            setFlags(res);
-        };
-        getData();
-    }, []);
 
     useEffect(() => {
         let timer;
@@ -115,8 +106,9 @@ export const Quiz = () => {
         setSelectedOption(null);
         setTimerRunning(true);
         const availableFlags = filteredFlags.filter((flag) => !shownFlags.includes(flag.name.common));
+
         if (availableFlags.length === 0) {
-            toggleGameOver();
+            setSelectedSection('gameOver');
             toggleGameStarted();
             setShownFlags([]);
         } else {
@@ -126,23 +118,6 @@ export const Quiz = () => {
         }
     };
 
-    const handleStartGame = () => {
-        if (gameOver) {
-            toggleGameOver();
-        }
-        toggleGameStarted();
-        setTimeRemaining(10);
-        setShownFlags([]);
-        if (selectedContinents.length > 0) {
-            const filteredFlags = flags.filter(flag => selectedContinents.includes(flag.region))
-            setFilteredFlags(filteredFlags);
-        }
-        setSelectedOption(null);
-        setTimerRunning(true);
-        setScore(0);
-        setLeftFlags(1);
-    };
-
     useEffect(() => {
         if (filteredFlags.length > 0) {
             const newOptions = getRandomOptions(filteredFlags);
@@ -150,87 +125,61 @@ export const Quiz = () => {
         }
     }, [filteredFlags]);
 
-    const leaveToStartScreen = () => {
-        toggleGameOver();
-        setCurrentFlag(null);
+    const returnToStartMenu = () => {
+        setSelectedSection('start');
+        toggleGameStarted();
     }
 
     return (
-        <div className='h-screen grid items-center justify-center background'>
-            {gameStarted ? (
-                <div className='rounded-lg px-9 py-4 bg-sky-400 shadow-lg'>
-                    <div className='grid grid-cols-3 items-center text-center font-bold'>
-                        <Image
-                            src={LeftArrow}
-                            height={20}
-                            width={20}
-                            alt='Return'
-                            onClick={() => toggleGameStarted()}
-                            className='cursor-pointer'
-                        />
-                        <p>Score: {score}</p>
-                        <p className='ml-auto'>{leftFlags}/{filteredFlags.length + 1 || flags.length + 1}</p>
-                    </div>
-                    <div className='border-2 border-gray-100 bg-gray-100 rounded-full my-4 relative'>
-                        <div
-                            className={`h-6 ${progressBarColor} rounded-full`}
-                            style={{ width: `${progressBarWidth}%` }}
-                        >
-                        </div>
-                        {timeRemaining === 0 && (
-                            <p className="text-sm font-semibold text-black absolute top-[2px] left-1/2 transform -translate-x-1/2">
-                                Time's Up!
-                            </p>
-                        )}
-                    </div>
-                    <section className='flex flex-col gap-4 items-center'>
-                        <FlagDisplay
-                            currentFlag={currentFlag}
-                        />
-                        <OptionsList
-                            options={options}
-                            selectedOption={selectedOption}
-                            handleOptionClick={handleOptionClick}
-                            currentFlag={currentFlag}
-                        />
-                    </section>
-                    <div className='flex justify-center mt-4'>
-                        {selectedOption && (
-                            <button
-                                onClick={handleNextFlag}
-                                className='rounded-lg shadow-md w-[50%] font-bold py-2 px-5 bg-yellow-500 hover:bg-yellow-600 transition duration-300'
-                            >
-                                Continue
-                            </button>
-                        )}
-                    </div>
+        <div className='rounded-lg px-9 py-4 bg-sky-400 shadow-lg'>
+            <div className='grid grid-cols-3 items-center text-center font-bold'>
+                <Image
+                    src={LeftArrow}
+                    height={20}
+                    width={20}
+                    alt='Return'
+                    onClick={returnToStartMenu}
+                    className='cursor-pointer'
+                />
+                <p>Score: {score}</p>
+                <p className='ml-auto'>{leftFlags}/{filteredFlags.length || flags.length}</p>
+            </div>
+            <div className='border-2 border-gray-100 bg-gray-100 rounded-full my-4 relative'>
+                <div
+                    className={`h-6 ${progressBarColor} rounded-full`}
+                    style={{ width: `${progressBarWidth}%` }}
+                >
                 </div>
-            ) : showLibrary ? (
-                <Library flags={flags} onClick={() => toggleShowLibrary()} />
-            ) : showMenuOptions ? (
-                <MenuOptions
-                    selectedContinents={selectedContinents}
-                    setSelectedContinents={setSelectedContinents}
-                    onClick={() => toggleShowMenuOptions()}
-                    continents={continents}
-                    setTextError={setTextError}
-                    textError={textError}
+                {timeRemaining === 0 && (
+                    <p className="text-sm font-semibold text-black absolute top-[2px] left-1/2 transform -translate-x-1/2">
+                        Time's Up!
+                    </p>
+                )}
+            </div>
+            <section className='flex flex-col gap-4 items-center'>
+                <FlagDisplay
+                    currentFlag={currentFlag}
                 />
-            ) : gameOver ? (
-                <GameOverModal
-                    score={score}
-                    filteredFlags={filteredFlags}
-                    playAgain={handleStartGame}
-                    leave={leaveToStartScreen}
+                <OptionsList
+                    options={options}
+                    selectedOption={selectedOption}
+                    handleOptionClick={handleOptionClick}
+                    currentFlag={currentFlag}
                 />
-            ) : (
-                <StartScreen
-                    handleStartGame={handleStartGame}
-                    showLibraryComponent={() => toggleShowLibrary()}
-                    showMenuOptions={() => toggleShowMenuOptions()} />
-            )}
+            </section>
+            <div className='flex justify-center mt-4'>
+                {selectedOption && (
+                    <button
+                        onClick={handleNextFlag}
+                        className='rounded-lg shadow-md w-[50%] font-bold py-2 px-5 bg-yellow-500 hover:bg-yellow-600 transition duration-300'
+                    >
+                        Continue
+                    </button>
+                )}
+            </div>
         </div>
-    );
+    )
+
 };
 
 export default Quiz;
