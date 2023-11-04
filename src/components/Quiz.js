@@ -131,7 +131,7 @@ export const Quiz = ({
     }
 
     return (
-        <div className='rounded-lg px-9 py-4 bg-sky-400 shadow-lg'>
+        <div className='rounded-lg px-9 py-4 bg-sky-400 max-w-xs md:max-w-sm shadow-lg'>
             <div className='grid grid-cols-3 items-center text-center font-bold'>
                 <Image
                     src={LeftArrow}

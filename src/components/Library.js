@@ -8,7 +8,7 @@ const Library = ({ flags, handleSectionChange }) => {
 
     return (
         <section className='h-screen grid items-center justify-center max-w-sm'>
-            <div className='bg-sky-400 shadow-lg px-3 rounded-lg shadow-md'>
+            <div className='bg-sky-400 max-w-xs md:max-w-sm shadow-lg px-3 rounded-lg shadow-md'>
                 <div className='flex justify-between px-4 items-center pt-3 pb-4'>
                     <Image
                         src={LeftArrow}

@@ -24,7 +24,7 @@ const MenuOptions = ({ selectedContinents, setSelectedContinents, continents, se
 
     return (
         <section className='h-screen grid items-center justify-center'>
-            <div className='bg-sky-400 shadow-lg px-5 py-5 rounded-lg shadow-md w-[380px]'>
+            <div className='bg-sky-400 shadow-lg max-w-xs md:max-w-sm px-5 py-5 rounded-lg shadow-md w-[380px]'>
                 <div className='flex justify-between items-center mb-5' >
                     <Image
                         src={LeftArrow}

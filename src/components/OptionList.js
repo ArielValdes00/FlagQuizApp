@@ -3,7 +3,7 @@ import React from 'react';
 const OptionsList = ({ options, selectedOption, handleOptionClick, currentFlag }) => {
 
     return (
-        <div className='flex flex-col justify-between gap-4 w-[320px]'>
+        <div className='flex flex-col justify-between gap-4 w-full'>
             {options.map((option, index) => (
                 <button
                     key={index}
